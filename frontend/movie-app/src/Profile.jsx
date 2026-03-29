@@ -104,7 +104,7 @@ function Profile() {
         />
       </div>
       <div className="profile-footer">
-          <button className="logout-btn-large" onClick={handleLogout}>Logout from Account</button>
+          <button className="logout-btn-large" onClick={handleLogout}>Logout</button>
       </div>
     </div>
   </div>
