@@ -121,9 +121,8 @@ def preprocessing():
     df['genres']=df['genres'].apply(lambda x :[i.replace(" ","") for i in x])
     df['cast']=df['cast'].apply(lambda x :[i.replace(" ","") for i in x])
     df['crew']=df['crew'].apply(lambda x :[i.replace(" ","") for i in x])
-    #collecting alls collumns to single tags
-    
-    df['tags'] = df['genres'] + df['cast'] +df['overview']+ df['crew']
+    # Collecting all columns to single tags (multiplying genres by 3 for more weightage)
+    df['tags'] = (df['genres'] * 3) + df['cast'] + df['overview'] + df['crew']
     df['tags']=df['tags'].apply(lambda x : " ".join(x))
     df['tags']=df['tags'].apply(lambda x : x.lower())
     

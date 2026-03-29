@@ -1,0 +1,175 @@
+.main-header {
+  background-color: #1a1a1a;
+  padding: 10px 5%;
+  border-bottom: 1px solid #333;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 180px;
+}
+
+.logo:hover {
+  transform: scale(1.02);
+}
+
+.logo-icon {
+  font-size: 28px;
+}
+
+.logo-text {
+  font-size: 22px;
+  margin: 0;
+  color: #fff;
+  font-weight: 800;
+}
+
+.search-bar-container {
+  flex: 1;
+  max-width: 650px;
+  position: relative;
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  background-color: #2a2a2a;
+  padding: 8px 18px;
+  border-radius: 25px;
+  border: 1px solid #444;
+  transition: all 0.2s ease;
+}
+
+.search-input-wrapper:focus-within {
+  border-color: #007bff;
+  background-color: #333;
+}
+
+.search-icon {
+  margin-right: 12px;
+  color: #bbb;
+}
+
+.header-search-input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  width: 100%;
+  font-size: 15px;
+  outline: none;
+}
+
+.header-search-results {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 100%;
+  background-color: #2a2a2a;
+  border-radius: 12px;
+  list-style: none;
+  padding: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+  border: 1px solid #444;
+}
+
+.header-search-item {
+  padding: 12px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #eee;
+  transition: all 0.1s ease;
+  font-size: 14px;
+}
+
+.header-search-item:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.header-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+  padding: 6px 15px;
+  border-radius: 30px;
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  transition: all 0.2s ease;
+}
+
+.header-user-profile:hover {
+  background-color: #333;
+  border-color: #007bff;
+}
+
+.welcome-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ddd;
+}
+
+.header-avatar {
+  font-size: 20px;
+  width: 32px;
+  height: 32px;
+  background-color: #007bff;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-dice {
+  font-size: 22px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: #2a2a2a;
+  border-radius: 50%;
+  border: 1px solid #444;
+}
+
+.header-dice:hover {
+  transform: scale(1.1);
+  background-color: #333;
+  border-color: #007bff;
+  box-shadow: 0 0 15px rgba(0, 123, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+  .logo-text, .welcome-text {
+    display: none;
+  }
+  .logo, .header-user-profile {
+    min-width: unset;
+    padding: 6px;
+  }
+}

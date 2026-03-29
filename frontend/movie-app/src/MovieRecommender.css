@@ -5,11 +5,81 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Main Container */
+/* Main Layout */
+.home-page {
+  min-height: 100vh;
+  background-color: #0c0c0c;
+}
+
 .container {
-  max-width: 1100px;
-  margin: 60px auto;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  text-align: left;
+}
+
+.section-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 25px;
+  letter-spacing: -0.5px;
+}
+
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #333, transparent);
+  margin: 50px 0;
+}
+
+.no-results {
+  color: #666;
+  font-size: 18px;
   text-align: center;
+  grid-column: 1 / -1;
+  padding: 40px;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 10px;
+}
+
+.user-profile-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 8px 15px;
+  border-radius: 20px;
+  background-color: #1a1a1a;
+  color: #fff;
+  transition: all 0.2s ease;
+  border: 1px solid #333;
+}
+
+.user-profile-link:hover {
+  background-color: #252525;
+  border-color: #007bff;
+}
+
+.user-profile-link span {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  background-color: #007bff;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
 }
 
 /* Title */

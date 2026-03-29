@@ -1,21 +1,27 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
+import { useNavigate, useLocation } from "react-router-dom";
+import Header from "./Header";
+import MovieCard from "./MovieCard";
 import "./MovieRecommender.css";
-import MovieDetail from "./MovieDetail";
 
-const IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
 const API_BASE = "http://localhost:8000";
 
 function MovieRecommender() {
   const [selectedMovie, setSelectedMovie] = useState("");
   const [recommendations, setRecommendations] = useState([]);
+  const [personalMovies, setPersonalMovies] = useState([]);
+  const [personalReason, setPersonalReason] = useState("");
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const hasTriggeredSuggest = useRef(false);
+  const userId = localStorage.getItem("user_id");
+  const username = localStorage.getItem("username");
 
-  // New state to track if a specific movie's details are being viewed
-  const [selectedDetailMovie, setSelectedDetailMovie] = useState(null);
 
   // Pagination and infinite scroll state
   const [skip, setSkip] = useState(0);
@@ -26,34 +32,55 @@ function MovieRecommender() {
   const [activeQuery, setActiveQuery] = useState("");
   const [activeIsExact, setActiveIsExact] = useState(false);
 
-  // Fetch more when skip changes
+  const initialFetchDone = useRef(false);
+
+  // 1. Initial Data Fetch (Personalized & Trending)
+  useEffect(() => {
+    const fetchInitial = async () => {
+      if (!userId) return;
+      
+      const fetchPersonalizedMovies = async () => {
+        try {
+          const isDiscoveryMode = location.state?.forceDiscover;
+          if (isDiscoveryMode) {
+            setActiveQuery(""); // Clear search when discovering
+            setRecommendations([]);
+          }
+          
+          const endpoint = isDiscoveryMode 
+            ? `${API_BASE}/recommendations/discover?limit=12`
+            : `${API_BASE}/recommendations/personalized?user_id=${userId}&limit=12`;
+          
+          const res = await axios.get(endpoint);
+          setPersonalMovies(res.data.recommendations || []);
+          setPersonalReason(res.data.reason || "");
+        } catch (err) {
+          console.error("Failed to fetch personalized movies:", err);
+        }
+      };
+      fetchPersonalizedMovies();
+    };
+
+    fetchInitial();
+  }, [userId, location.state?.forceDiscover]);
+
+  // 2. Handle Search from Navigation State
+  useEffect(() => {
+    if (location.state?.searchMovie && !hasTriggeredSuggest.current) {
+      const { searchMovie, isExact } = location.state;
+      handleSuggest(searchMovie, false, 0, isExact);
+      hasTriggeredSuggest.current = true;
+      // Clear state silently
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
+  // 3. Fetch more when skip changes
   useEffect(() => {
     if (skip > 0) {
       handleSuggest(null, true, skip);
     }
   }, [skip]);
-
-  // Fetch search results when query changes
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(async () => {
-      if (searchQuery.trim().length > 0 && searchQuery !== selectedMovie) {
-        try {
-          const res = await axios.get(
-            `${API_BASE}/search?query=${searchQuery}`
-          );
-          setSearchResults(res.data.movies);
-          setShowDropdown(true);
-        } catch (err) {
-          console.log(err);
-        }
-      } else {
-        setSearchResults([]);
-        setShowDropdown(false);
-      }
-    }, 300); // 300ms debounce
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery]);
 
   const handleSelectMovie = (movie) => {
     setSelectedMovie(movie);
@@ -63,6 +90,16 @@ function MovieRecommender() {
     // Auto fetch recommendations when selected
     handleSuggest(movie, false, 0, true);
   };
+
+  // Handle "Suggest More Like This" from Detail Page (must be after handleSelectMovie)
+  useEffect(() => {
+    if (location.state?.suggestMovie && !hasTriggeredSuggest.current) {
+      handleSelectMovie(location.state.suggestMovie);
+      hasTriggeredSuggest.current = true;
+      // Clear state so it doesn't re-trigger on back/forward
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // Fetch recommendations
   const handleSuggest = async (movieToSearch, isAppend = false, currentSkip = 0, forceExactMatch = null) => {
@@ -97,13 +134,13 @@ function MovieRecommender() {
     try {
       let url;
       if (isExact) {
-        url = `${API_BASE}/recommend?movie=${queryToUse}&skip=${currentSkip}&limit=12`;
+        url = `${API_BASE}/recommend?movie=${encodeURIComponent(queryToUse)}&user_id=${userId || ""}&skip=${currentSkip}&limit=12`;
       } else {
-        url = `${API_BASE}/recommend-text?query=${queryToUse}&skip=${currentSkip}&limit=12`;
+        url = `${API_BASE}/recommend-text?query=${encodeURIComponent(queryToUse)}&user_id=${userId || ""}&skip=${currentSkip}&limit=12`;
       }
 
       const res = await axios.get(url);
-      const newRecs = res.data.recommendations;
+      const newRecs = res.data.recommendations || [];
 
       if (newRecs.length === 0 || newRecs.length < 12) {
         setHasMore(false);
@@ -115,129 +152,71 @@ function MovieRecommender() {
         setRecommendations(newRecs);
       }
     } catch (err) {
-      console.log(err);
+      console.error("Search failed:", err);
+      setRecommendations([]);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
-    <div className="container">
-      <h2 className="title">🎬 Moviees4U</h2>
+    <div className="home-page">
+      <Header onSearch={(query, isExact) => handleSuggest(query, false, 0, isExact)} />
+      
+      <div className="container">
+        {personalMovies.length > 0 && !activeQuery && (
+          <div className="personal-recommendations-section">
+            <h2 className="section-title">
+              {personalReason === "personalized" ? "✨ Recommended For You" : "🎲 Discover Movies"}
+            </h2>
+            <div className="card-grid">
+              {personalMovies.map((movie, index) => (
+                <MovieCard 
+                  key={`personal-${movie.movie_id}-${index}`} 
+                  movie={movie} 
+                  highlightGenres={movie.shared_genres} 
+                />
+              ))}
+            </div>
+            <div className="section-divider"></div>
+          </div>
+        )}
 
-      <div className="search-container">
-        <input
-          type="text"
-          className="search-input"
-          placeholder="Search for a movie..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onFocus={() => {
-            if (searchResults.length > 0) setShowDropdown(true);
-          }}
-          onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-        />
-        {showDropdown && searchResults.length > 0 && (
-          <ul className="search-results">
-            {searchResults.map((movie, index) => (
-              <li
-                key={index}
-                className="search-result-item"
-                onMouseDown={(e) => {
-                  e.preventDefault(); // Prevent onBlur from firing
-                  handleSelectMovie(movie);
-                }}
-              >
-                {movie}
-              </li>
-            ))}
-          </ul>
+        <div className="search-feed-section">
+          {activeQuery && (
+            <>
+              <h2 className="section-title">Results for "{activeQuery}"</h2>
+              <div className="card-grid">
+                {recommendations.length > 0 ? (
+                  recommendations.map((movie, index) => (
+                    <MovieCard 
+                      key={`search-${movie.movie_id}-${index}`} 
+                      movie={movie} 
+                      highlightGenres={movie.shared_genres} 
+                    />
+                  ))
+                ) : (
+                  !loading && <p className="no-results">No results found for "{activeQuery}".</p>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
+        {hasMore && recommendations.length > 0 && activeQuery && (
+          <div style={{ textAlign: "center", marginTop: "20px", paddingBottom: "40px" }}>
+            <button 
+              type="button"
+              className="suggest-btn" 
+              onClick={() => setSkip(prevSkip => prevSkip + 12)}
+              disabled={loading}
+            >
+              {loading ? "Loading results..." : "Show More Results"}
+            </button>
+          </div>
         )}
       </div>
-
-      <button type="button" className="suggest-btn" onClick={() => handleSuggest()}>
-        Suggest Movies
-      </button>
-
-      <div className="card-grid">
-        {recommendations.map((movie, index) => {
-          const cardProps = {
-            key: index,
-            className: "movie-card",
-            onClick: () => setSelectedDetailMovie(movie),
-            style: { cursor: "pointer" }
-          };
-
-          return (
-            <div {...cardProps}>
-              <img
-                src={movie.poster_path ? `${IMAGE_BASE}${movie.poster_path}` : "https://via.placeholder.com/500x750?text=No+Poster+Available"}
-                alt={movie.title}
-              />
-              <div className="card-body">
-                <div className="card-title">{movie.title}</div>
-
-                <div className="card-text">
-                  <strong>Genre:</strong>{" "}
-                  {movie.genres.map((genre, i) => (
-                    <span key={i} className={movie.shared_genres?.includes(genre) ? "highlight" : ""}>
-                      {genre}{i < movie.genres.length - 1 ? ", " : ""}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="card-text">
-                  <strong>Cast:</strong>{" "}
-                  {/* Always show shared cast members, and pad with regular cast members up to 3 total */}
-                  {(() => {
-                    const shared = movie.shared_cast || [];
-                    let toShow = [...shared];
-
-                    if (toShow.length < 3) {
-                      const nonShared = movie.cast.filter(actor => !shared.includes(actor));
-                      toShow = [...toShow, ...nonShared.slice(0, 3 - toShow.length)];
-                    }
-
-                    return toShow.map((actor, i) => (
-                      <span key={i} className={shared.includes(actor) ? "highlight" : ""}>
-                        {actor}{i < toShow.length - 1 ? ", " : ""}
-                      </span>
-                    ));
-                  })()}
-                </div>
-
-
-
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {hasMore && recommendations.length > 0 && (
-        <div style={{ textAlign: "center", marginTop: "20px" }}>
-          <button 
-            type="button"
-            className="suggest-btn" 
-            onClick={() => setSkip(prevSkip => prevSkip + 12)}
-            disabled={loading}
-          >
-            {loading ? "Loading more movies..." : "Show More"}
-          </button>
-        </div>
-      )}
-
-      {selectedDetailMovie && (
-        <MovieDetail
-          movie={selectedDetailMovie}
-          onClose={() => setSelectedDetailMovie(null)}
-          onSuggestMore={(movieTitle) => {
-            setSearchQuery(movieTitle);
-            setSelectedMovie(movieTitle);
-            handleSuggest(movieTitle, false, 0, true);
-            setSelectedDetailMovie(null);
-          }}
-        />
-      )}
     </div>
   );
 }

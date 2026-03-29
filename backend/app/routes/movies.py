@@ -12,5 +12,5 @@ def search_movies_api(request: Request, query: str = Query(..., min_length=1), l
     return search_movies(request.app.state.movies, query, limit)
 
 @router.get("/movie/{movie_id}/details")
-def get_movie_details_api(movie_id: int = Path(...)):
-    return get_movie_details(movie_id)
+def get_movie_details_api(request: Request, movie_id: int = Path(...)):
+    return get_movie_details(request.app.state.movies, movie_id)

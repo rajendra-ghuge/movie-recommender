@@ -2,13 +2,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from app.routes import movies, recommend
+from app.routes import movies, recommend, auth, interactions, posters
 from data.preprocessing import preprocessing, get_similarity
+from app.db import init_db
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Load and preprocess data on startup
     print("Loading datasets and calculating similarity tensors...")
+    
+    # Initialize SQLite Database
+    init_db()
+    
     df, movies_df = preprocessing()
     movie_tensor, cv = get_similarity(df)
     
@@ -39,3 +44,6 @@ app.add_middleware(
 
 app.include_router(movies.router)
 app.include_router(recommend.router)
+app.include_router(auth.router, prefix="/auth")
+app.include_router(interactions.router)
+app.include_router(posters.router)

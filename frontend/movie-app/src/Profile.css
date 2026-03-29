@@ -1,0 +1,186 @@
+.profile-container {
+  min-height: 100vh;
+  background-color: #0c0c0c;
+  color: #fff;
+  padding: 60px 10%;
+}
+
+.profile-header-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 50px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 20px;
+}
+
+.user-info h1 {
+  font-size: 42px;
+  margin: 0;
+  color: #007bff;
+}
+
+.user-info p {
+  color: #888;
+  margin: 5px 0 0 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.home-btn, .logout-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  transition: opacity 0.2s;
+}
+
+.home-btn {
+  background-color: #2a2a2a;
+  color: #fff;
+}
+
+.logout-btn {
+  background-color: #ff4d4d;
+  color: #fff;
+}
+
+.home-btn:hover, .logout-btn:hover {
+  opacity: 0.8;
+}
+
+.profile-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profile-page {
+  min-height: 100vh;
+  background-color: #0c0c0c;
+}
+
+.profile-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  color: #fff;
+}
+
+.accordion {
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.accordion-header {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  background-color: #1e1e1e;
+  transition: background-color 0.2s;
+}
+
+.accordion-header:hover {
+  background-color: #252525;
+}
+
+.accordion-header h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.accordion-content {
+  padding: 20px;
+  background-color: #141414;
+  border-top: 1px solid #333;
+}
+
+.profile-movie-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.profile-movie-item {
+  background-color: #252525;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid #333;
+  transition: all 0.2s ease;
+  min-width: 150px;
+}
+
+.profile-movie-item:hover {
+  background-color: #333;
+  border-color: #007bff;
+  transform: translateY(-2px);
+}
+
+.movie-name {
+  color: #fff;
+  font-weight: 700;
+}
+
+.movie-id {
+  color: #666;
+  font-size: 12px;
+}
+
+.no-items {
+  color: #666;
+  font-style: italic;
+}
+
+.loading {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #0c0c0c;
+  color: #fff;
+  font-size: 24px;
+}
+.profile-footer {
+  margin-top: 50px;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 60px;
+  border-top: 1px solid #333;
+  padding-top: 30px;
+}
+
+.logout-btn-large {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(255, 77, 77, 0.2);
+}
+
+.logout-btn-large:hover {
+  background-color: #ff3333;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 77, 77, 0.3);
+}
+
+.logout-btn-large:active {
+  transform: translateY(0);
+}
